@@ -58,14 +58,14 @@ namespace BookstoreAPI.Controllers
 
         // POST api/<CustomersController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] Customer value)
         {
             using (var db = new DatabaseHelper())
             {
                 // TODO: Konvertierung und Standardwerte hinzufügen
-                value = "Hier wird verabeitet";
+                //value = "Hier wird verabeitet";
 
-                string query = $"INSERT INTO customers (name) VALUES ('{value}')";
+                string query = $"INSERT INTO customers (firstname, lastname, title, street, city, age) VALUES ({value.FirstName}, {value.LastName}, {value.Title}, {value.Street}, {value.City}, {value.Age})";
                 db.ExecuteNonQuery(query);
 
             }
@@ -97,5 +97,15 @@ namespace BookstoreAPI.Controllers
 
             }
         }
+    }
+
+    public class Customer
+    {
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Title { get; set; }
+        public string Street { get; set; }
+        public string City { get; set; }
+        public int Age { get; set; }
     }
 }
