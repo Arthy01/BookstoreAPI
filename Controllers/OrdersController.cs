@@ -64,7 +64,7 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                string query = $"INSERT INTO orders (timestamp, amount, customer_id) VALUES ('{value.Timestamp}', '{value.Amount}', '{value.CustomerID}')";
+                string query = $"INSERT INTO orders (timestamp, amount, customer_id) VALUES ('{value.Timestamp: yyyy-MM-dd}', '{value.Amount}', '{value.CustomerID}')";
                 db.ExecuteNonQuery(query);
             }
         }
