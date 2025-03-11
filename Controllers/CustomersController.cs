@@ -25,7 +25,7 @@ namespace BookstoreAPI.Controllers
                     customers.Add(new
                     {
                         Id = row["id"],
-                        Fistname = row["firstname"],
+                        Firstname = row["firstname"],
                         Lastname = row["lastname"],
                         Title = row["title"],
                         Street = row["street"],
@@ -52,7 +52,7 @@ namespace BookstoreAPI.Controllers
                     customers.Add(new
                     {
                         Id = row["id"],
-                        Fistname = row["firstname"],
+                        Firstname = row["firstname"],
                         Lastname = row["lastname"],
                         Title = row["title"],
                         Street = row["street"],
