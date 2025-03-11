@@ -1,4 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using BookstoreAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
@@ -94,18 +94,7 @@ namespace BookstoreAPI.Controllers
             {
                 string query = $"DELETE FROM customers WHERE id = {id}";
                 db.ExecuteNonQuery(query);
-
             }
         }
-    }
-
-    public class Customer
-    {
-        public string LastName { get; set; }
-        public string FirstName { get; set; }
-        public string Title { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public int Age { get; set; }
     }
 }
