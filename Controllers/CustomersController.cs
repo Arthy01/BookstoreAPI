@@ -16,17 +16,21 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                string query = "SELECT * FROM customers limit 10";
+                string query = "SELECT * FROM customers";
                 DataTable result = db.ExecuteQuery(query);
 
                 List<object> customers = new List<object>();
                 foreach (DataRow row in result.Rows)
                 {
-                    // TODO: Atrribute bearbeiten
                     customers.Add(new
                     {
                         Id = row["id"],
-                        Name = row["name"]
+                        Fistname = row["firstname"],
+                        Lastname = row["lastname"],
+                        Title = row["title"],
+                        Street = row["street"],
+                        City = row["city"],
+                        Age = row["age"]
                     });
                 }
                 return Ok(customers);
@@ -39,17 +43,21 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                string query = $"SELECT * FROM customers WHERE customers.id = {id} limit 10";
+                string query = $"SELECT * FROM customers WHERE customers.id = {id}";
                 DataTable result = db.ExecuteQuery(query);
 
                 List<object> customers = new List<object>();
                 foreach (DataRow row in result.Rows)
                 {
-                    // TODO: Atrribute bearbeiten
                     customers.Add(new
                     {
                         Id = row["id"],
-                        Name = row["name"]
+                        Fistname = row["firstname"],
+                        Lastname = row["lastname"],
+                        Title = row["title"],
+                        Street = row["street"],
+                        City = row["city"],
+                        Age = row["age"]
                     });
                 }
                 return Ok(customers);
@@ -62,8 +70,6 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                // TODO: Konvertierung und Standardwerte hinzufügen
-                //value = "Hier wird verabeitet";
 
                 string query = $"INSERT INTO customers (firstname, lastname, title, street, city, age) VALUES ({value.FirstName}, {value.LastName}, {value.Title}, {value.Street}, {value.City}, {value.Age})";
                 db.ExecuteNonQuery(query);
@@ -73,14 +79,12 @@ namespace BookstoreAPI.Controllers
 
         // PUT api/<CustomersController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] Customer value)
         {
             using (var db = new DatabaseHelper())
             {
-                // TODO: Konvertierung und Standardwerte hinzufügen
-                value = "Hier wird verabeitet";
 
-                string query = $"UPDATE customers SET name = '{value}' WHERE id = {id}";
+                string query = $"UPDATE customers SET firstname = {value.FirstName}, lastname = {value.LastName}, title = {value.Title}, street = {value.Street}, city = {value.City}, age = {value.Age} WHERE id = {id}";
                 db.ExecuteNonQuery(query);
 
             }
@@ -92,7 +96,7 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                string query = $"DELETE FROM customers WHERE id = {id}";
+                string query = $"UPDATE customers SET firstname = {null}, lastname = {null}, title = {null}, street = {null}, city = {null}, age = {null} WHERE id = {id}";
                 db.ExecuteNonQuery(query);
             }
         }
