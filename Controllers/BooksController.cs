@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System;
+using System.Collections.Generic;
+using BookstoreAPI.Models;
 
 namespace BookstoreAPI.Controllers
 {
@@ -9,7 +10,7 @@ namespace BookstoreAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        // GET: api/<BooksController>
+        // GET: api/books?page=1&pageSize=500
         [HttpGet]
         public IActionResult Get(int page = 1, int pageSize = 500)
         {
@@ -26,14 +27,19 @@ namespace BookstoreAPI.Controllers
                 string query = $"SELECT * FROM books LIMIT {pageSize} OFFSET {offset}";
                 DataTable result = db.ExecuteQuery(query);
 
-                List<object> books = new List<object>();
+                List<Book> books = new List<Book>();
                 foreach (DataRow row in result.Rows)
                 {
-                    books.Add(new
+                    books.Add(new Book
                     {
-                        Id = row["id"],
-                        Title = row["title"],
-                        Author = row["creator"]
+                        Id = Convert.ToUInt64(row["id"]),
+                        Title = row["title"].ToString(),
+                        Creator = row["creator"] as string,
+                        Issued = Convert.ToDateTime(row["issued"]),
+                        Downloads = Convert.ToUInt64(row["downloads"]),
+                        Url = row["url"].ToString(),
+                        Language = row["language"].ToString(),
+                        SubjectId = row["subject_id"] != DBNull.Value ? Convert.ToUInt64(row["subject_id"]) : null
                     });
                 }
 
@@ -46,29 +52,115 @@ namespace BookstoreAPI.Controllers
             }
         }
 
-        // GET api/<BooksController>/5
+        // GET api/books/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(ulong id)
         {
-            return "value";
+            if (id < 1)
+            {
+                return BadRequest("Ungültige ID. Sie muss größer als 0 sein.");
+            }
+
+            using (var db = new DatabaseHelper())
+            {
+                string query = $"SELECT * FROM books WHERE id = {id} LIMIT 1";
+                DataTable result = db.ExecuteQuery(query);
+
+                if (result.Rows.Count == 0)
+                {
+                    return NotFound("Buch nicht gefunden");
+                }
+
+                DataRow row = result.Rows[0];
+
+                Book book = new Book
+                {
+                    Id = Convert.ToUInt64(row["id"]),
+                    Title = row["title"].ToString(),
+                    Creator = row["creator"] as string,
+                    Issued = Convert.ToDateTime(row["issued"]),
+                    Downloads = Convert.ToUInt64(row["downloads"]),
+                    Url = row["url"].ToString(),
+                    Language = row["language"].ToString(),
+                    SubjectId = row["subject_id"] != DBNull.Value ? Convert.ToUInt64(row["subject_id"]) : null
+                };
+
+                return Ok(book);
+            }
         }
 
-        // POST api/<BooksController>
+        // POST api/books
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] Book newBook)
         {
+            if (newBook == null || string.IsNullOrWhiteSpace(newBook.Title) || string.IsNullOrWhiteSpace(newBook.Url))
+            {
+                return BadRequest("Titel und URL sind erforderlich.");
+            }
+
+            using (var db = new DatabaseHelper())
+            {
+                string query = $"INSERT INTO books (title, creator, issued, downloads, url, language, subject_id) " +
+                               $"VALUES ('{newBook.Title}', '{newBook.Creator}', '{newBook.Issued:yyyy-MM-dd}', {newBook.Downloads}, '{newBook.Url}', '{newBook.Language}', {newBook.SubjectId})";
+
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Buch erfolgreich hinzugefügt.");
+                else
+                    return StatusCode(500, "Fehler beim Einfügen des Buches.");
+            }
         }
 
-        // PUT api/<BooksController>/5
+        // PUT api/books/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(ulong id, [FromBody] Book updatedBook)
         {
+            if (id < 1 || updatedBook == null)
+            {
+                return BadRequest("Ungültige Daten.");
+            }
+
+            using (var db = new DatabaseHelper())
+            {
+                string query = $"UPDATE books SET " +
+                               $"title = '{updatedBook.Title}', " +
+                               $"creator = '{updatedBook.Creator}', " +
+                               $"issued = '{updatedBook.Issued:yyyy-MM-dd}', " +
+                               $"downloads = {updatedBook.Downloads}, " +
+                               $"url = '{updatedBook.Url}', " +
+                               $"language = '{updatedBook.Language}', " +
+                               $"subject_id = {updatedBook.SubjectId} " +
+                               $"WHERE id = {id}";
+
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Buch erfolgreich aktualisiert.");
+                else
+                    return NotFound("Buch nicht gefunden.");
+            }
         }
 
-        // DELETE api/<BooksController>/5
+        // DELETE api/books/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(ulong id)
         {
+            if (id < 1)
+            {
+                return BadRequest("Ungültige ID.");
+            }
+
+            using (var db = new DatabaseHelper())
+            {
+                string query = $"DELETE FROM books WHERE id = {id}";
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Buch erfolgreich gelöscht.");
+                else
+                    return NotFound("Buch nicht gefunden.");
+            }
         }
     }
 }

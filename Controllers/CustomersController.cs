@@ -70,10 +70,8 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-
-                string query = $"INSERT INTO customers (firstname, lastname, title, street, city, age) VALUES ({value.FirstName}, {value.LastName}, {value.Title}, {value.Street}, {value.City}, {value.Age})";
+                string query = $"INSERT INTO customers (firstname, lastname, title, street, city, age) VALUES ('{value.FirstName}', '{value.LastName}', '{value.Title}', '{value.Street}', '{value.City}', '{value.Age}')";
                 db.ExecuteNonQuery(query);
-
             }
         }
 
@@ -84,7 +82,7 @@ namespace BookstoreAPI.Controllers
             using (var db = new DatabaseHelper())
             {
 
-                string query = $"UPDATE customers SET firstname = {value.FirstName}, lastname = {value.LastName}, title = {value.Title}, street = {value.Street}, city = {value.City}, age = {value.Age} WHERE id = {id}";
+                string query = $"UPDATE customers SET firstname = '{value.FirstName}', lastname = '{value.LastName}', title = '{value.Title}', street = '{value.Street}', city = '{value.City}', age = '{value.Age}' WHERE id = {id}";
                 db.ExecuteNonQuery(query);
 
             }
