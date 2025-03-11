@@ -11,11 +11,19 @@ namespace BookstoreAPI.Controllers
     {
         // GET: api/<BooksController>
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get(int page = 1, int pageSize = 500)
         {
+            if (pageSize < 1 || pageSize > 1000)
+                pageSize = 500;
+
+            if (page < 1)
+                page = 1;
+
+            int offset = (page - 1) * pageSize;
+
             using (var db = new DatabaseHelper())
             {
-                string query = "SELECT * FROM books limit 10";
+                string query = $"SELECT * FROM books LIMIT {pageSize} OFFSET {offset}";
                 DataTable result = db.ExecuteQuery(query);
 
                 List<object> books = new List<object>();
@@ -28,7 +36,13 @@ namespace BookstoreAPI.Controllers
                         Author = row["creator"]
                     });
                 }
-                return Ok(books);
+
+                return Ok(new
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    Books = books
+                });
             }
         }
 
