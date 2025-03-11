@@ -36,7 +36,7 @@ namespace BookstoreAPI.Controllers
 
         // GET api/<OrdersController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public IActionResult Get(ulong id)
         {
             using (var db = new DatabaseHelper())
             {

@@ -39,8 +39,12 @@ namespace BookstoreAPI.Controllers
 
         // GET api/<CustomersController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public IActionResult Get(ulong id)
         {
+            if (id < 1) {
+                return BadRequest("Ungültige ID.");
+            }
+
             using (var db = new DatabaseHelper())
             {
                 string query = $"SELECT * FROM customers WHERE customers.id = {id}";
@@ -66,36 +70,69 @@ namespace BookstoreAPI.Controllers
 
         // POST api/<CustomersController>
         [HttpPost]
-        public void Post([FromBody] Customer value)
+        public IActionResult Post([FromBody] Customer value)
         {
             using (var db = new DatabaseHelper())
             {
+                if (value == null || string.IsNullOrWhiteSpace(value.FirstName) || string.IsNullOrWhiteSpace(value.LastName) || string.IsNullOrWhiteSpace(value.Street) || string.IsNullOrWhiteSpace(value.City))
+                {
+                    return BadRequest("Volständige Angaben sind erforderlich.");
+                }
+
                 string query = $"INSERT INTO customers (firstname, lastname, title, street, city, age) VALUES ('{value.FirstName}', '{value.LastName}', '{value.Title}', '{value.Street}', '{value.City}', '{value.Age}')";
-                db.ExecuteNonQuery(query);
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Kunde erfolgreich hinzugefügt.");
+                else
+                    return BadRequest("Kunde konnte nicht hinzugefügt werden.");
             }
         }
 
         // PUT api/<CustomersController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Customer value)
+        public IActionResult Put(ulong id, [FromBody] Customer value)
         {
+            if (id < 1 || value == null)
+            {
+                return BadRequest("Ungültige Daten.");
+            }
+
             using (var db = new DatabaseHelper())
             {
 
                 string query = $"UPDATE customers SET firstname = '{value.FirstName}', lastname = '{value.LastName}', title = '{value.Title}', street = '{value.Street}', city = '{value.City}', age = '{value.Age}' WHERE id = {id}";
-                db.ExecuteNonQuery(query);
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Kunde erfolgreich aktualisiert.");
+                else
+                    return NotFound("Kunde nicht gefunden.");
 
             }
         }
 
-        // DELETE api/<CustomersController>/5
+        // DELETE api/CustomersController/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(ulong id)
         {
+            if (id < 1)
+            {
+                return BadRequest("Ungültige ID.");
+            }
+
             using (var db = new DatabaseHelper())
             {
-                string query = $"UPDATE customers SET firstname, lastname, title, street, city, age WHERE id = {id}";
-                db.ExecuteNonQuery(query);
+                string query = $"DELETE FROM orders WHERE customer_id = {id}";
+                int rowsAffected = db.ExecuteNonQuery(query);
+
+                query = $"DELETE FROM customers WHERE id = {id}";
+                rowsAffected += db.ExecuteNonQuery(query);
+
+                if (rowsAffected > 0)
+                    return Ok("Kunde erfolgreich gelöscht.");
+                else
+                    return NotFound("Kunde nicht gefunden.");
             }
         }
     }
