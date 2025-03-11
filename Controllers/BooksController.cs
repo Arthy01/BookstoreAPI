@@ -100,8 +100,9 @@ namespace BookstoreAPI.Controllers
 
             using (var db = new DatabaseHelper())
             {
+                string subjectIdValue = newBook.SubjectId.HasValue ? newBook.SubjectId.ToString() : "NULL";
                 string query = $"INSERT INTO books (title, creator, issued, downloads, url, language, subject_id) " +
-                               $"VALUES ('{newBook.Title}', '{newBook.Creator}', '{newBook.Issued:yyyy-MM-dd}', {newBook.Downloads}, '{newBook.Url}', '{newBook.Language}', {newBook.SubjectId})";
+                               $"VALUES ('{newBook.Title}', '{newBook.Creator}', '{newBook.Issued:yyyy-MM-dd}', {newBook.Downloads}, '{newBook.Url}', '{newBook.Language}', {subjectIdValue})";
 
                 int rowsAffected = db.ExecuteNonQuery(query);
 
