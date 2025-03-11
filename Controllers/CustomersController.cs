@@ -94,7 +94,7 @@ namespace BookstoreAPI.Controllers
         {
             using (var db = new DatabaseHelper())
             {
-                string query = $"UPDATE customers SET firstname = {null}, lastname = {null}, title = {null}, street = {null}, city = {null}, age = {null} WHERE id = {id}";
+                string query = $"UPDATE customers SET firstname, lastname, title, street, city, age WHERE id = {id}";
                 db.ExecuteNonQuery(query);
             }
         }
