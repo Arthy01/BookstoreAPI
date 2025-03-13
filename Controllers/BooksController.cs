@@ -51,6 +51,55 @@ namespace BookstoreAPI.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public IActionResult SearchByTitle(string title, int page = 1, int pageSize = 500)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return BadRequest("Der Titel darf nicht leer sein.");
+
+            if (pageSize < 1 || pageSize > 500)
+                pageSize = 500;
+
+            if (page < 1)
+                page = 1;
+
+            int offset = (page - 1) * pageSize;
+
+            using (var db = new DatabaseHelper())
+            {
+                string query = $"SELECT * FROM books WHERE title LIKE @title LIMIT {pageSize + 1} OFFSET {offset}";
+                var parameters = new Dictionary<string, object> { { "@title", $"%{title}%" } };
+
+                DataTable result = db.ExecuteQuery(query, parameters);
+
+                if (result.Rows.Count > 500)
+                    return BadRequest("Zu viele Ergebnisse. Bitte den Titel genauer spezifizieren.");
+
+                List<Book> books = new List<Book>();
+                foreach (DataRow row in result.Rows)
+                {
+                    books.Add(new Book
+                    {
+                        Title = row["title"].ToString(),
+                        Creator = row["creator"] as string,
+                        Issued = Convert.ToDateTime(row["issued"]),
+                        Downloads = Convert.ToUInt64(row["downloads"]),
+                        Url = row["url"].ToString(),
+                        Language = row["language"].ToString(),
+                        SubjectId = row["subject_id"] != DBNull.Value ? Convert.ToUInt64(row["subject_id"]) : null
+                    });
+                }
+
+                return Ok(new
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    Books = books
+                });
+            }
+        }
+
+
         // GET api/books/5
         [HttpGet("{id}")]
         public IActionResult Get(ulong id)
