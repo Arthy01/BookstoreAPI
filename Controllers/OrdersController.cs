@@ -19,15 +19,15 @@ namespace BookstoreAPI.Controllers
                 string query = "SELECT * FROM orders";
                 DataTable result = db.ExecuteQuery(query);
 
-                List<object> orders = new List<object>();
+                List<Order> orders = new List<Order>();
                 foreach (DataRow row in result.Rows)
                 {
-                    orders.Add(new
+                    orders.Add(new Order
                     {
-                        Id = row["id"],
-                        Timestamp = row["timestamp"],
-                        Amount = row["amount"],
-                        CustomerID = row["customer_id"]
+                        // Id = row["id"],
+                        Timestamp = Convert.ToDateTime(row["timestamp"]),
+                        Amount = Convert.ToSingle(row["amount"]),
+                        CustomerID = Convert.ToUInt64(row["customer_id"])
                     });
                 }
                 return Ok(orders);
@@ -43,15 +43,15 @@ namespace BookstoreAPI.Controllers
                 string query = $"SELECT * FROM orders WHERE orders.id = {id}";
                 DataTable result = db.ExecuteQuery(query);
 
-                List<object> orders = new List<object>();
+                List<Order> orders = new List<Order>();
                 foreach (DataRow row in result.Rows)
                 {
-                    orders.Add(new
+                    orders.Add(new Order
                     {
-                        Id = row["id"],
-                        Timestamp = row["timestamp"],
-                        Amount = row["amount"],
-                        CustomerID = row["customer_id"]
+                        // Id = row["id"],
+                        Timestamp = Convert.ToDateTime(row["timestamp"]),
+                        Amount = Convert.ToSingle(row["amount"]),
+                        CustomerID = Convert.ToUInt64(row["customer_id"])
                     });
                 }
                 return Ok(orders);
@@ -60,12 +60,16 @@ namespace BookstoreAPI.Controllers
 
         // POST api/<OrdersController>
         [HttpPost]
-        public void Post([FromBody] Order value)
+        public IActionResult Post([FromBody] Order value)
         {
             using (var db = new DatabaseHelper())
             {
+                if (value.CustomerID <= 0)
+                    return BadRequest("Ungültige Customer number");
+
                 string query = $"INSERT INTO orders (timestamp, amount, customer_id) VALUES ('{value.Timestamp: yyyy-MM-dd}', '{value.Amount}', '{value.CustomerID}')";
                 db.ExecuteNonQuery(query);
+                return Ok("Order hinzugefügt");
             }
         }
     }

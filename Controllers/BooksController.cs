@@ -32,7 +32,6 @@ namespace BookstoreAPI.Controllers
                 {
                     books.Add(new Book
                     {
-                        Id = Convert.ToUInt64(row["id"]),
                         Title = row["title"].ToString(),
                         Creator = row["creator"] as string,
                         Issued = Convert.ToDateTime(row["issued"]),
@@ -75,7 +74,6 @@ namespace BookstoreAPI.Controllers
 
                 Book book = new Book
                 {
-                    Id = Convert.ToUInt64(row["id"]),
                     Title = row["title"].ToString(),
                     Creator = row["creator"] as string,
                     Issued = Convert.ToDateTime(row["issued"]),

@@ -2,7 +2,6 @@
 {
     public class Book
     {
-        public ulong Id { get; set; } // bigint unsigned
         public string Title { get; set; } // varchar(1023), NOT NULL
         public string? Creator { get; set; } // varchar(127), kann NULL sein
         public DateTime Issued { get; set; } // date, NOT NULL
